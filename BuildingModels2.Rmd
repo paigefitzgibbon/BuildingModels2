@@ -1,0 +1,124 @@
+---
+title: "Model Building 2"
+author: Paige FitzGibbon
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Part 1
+##Loading packages and data
+
+```{r cars}
+library(tidyverse)
+library(dplyr)
+clim <- read.delim(file = "clim.txt", header = T, sep = " ")
+
+```
+
+# Part 2
+##Creating vector data for February temperature and January precipitation
+
+```{r pressure, echo=FALSE}
+  jan_precip <- clim %>% 
+    filter(month=="1") %>% 
+    group_by(year) %>% 
+    summarise(mean_precip_january = mean(precip))
+
+
+  feb_temp <- clim %>% 
+    filter(month == "2") %>% 
+    group_by(year) %>% 
+    summarise(mean_tmin_c = mean(tmin_c))
+
+
+```
+
+
+# Part 3
+##Expand you almond yield function to include a user option that determines whether average yield anomoly, OR yield anomolies for each year are returned.
+
+```{r}
+source("almond_yield.R")
+almond_year = almond_yield(feb_tmin$tmin_c, jan_precip$precip, "year")
+almond_average = almond_yield(feb_tmin$tmin_c, jan_precip$precip, "average")
+
+
+```
+
+
+# Part 4
+##Create another function that computes change in gross profit given price per yield.  Have the function return total change in gross profit aggregated over all years. Aggregated profit should be in net present value 'dollars' for the first year of data. Allow the user to vary the price and discount rate
+
+```{r}
+source("compute_NPV.R")
+source("almond_profit.R")
+
+profit = almond_profit(yield = yields, price = 50, discount = 0.10)
+print(profit)
+
+
+```
+
+# Part 5
+Create an R markdown document that applies your function, for 3 warming scenarios (+1, +2, +3) and 2 Precipitation change scenarios. In the first precipitation scenario January precipitation doubles and in the second scenario, January precipitation is 1/2 of what it currently is. Apply climate changes to all years.  Also run your model for two differnt prices - a high value and a low value 
+
++1 Warming Scenario
+```{r}
+source("almond_yield.R")
+almond_1 = almond_yield(feb_tmin$tmin_c, jan_precip$precip, "year", dtemp = 1)
+```
++2 Warming Scenario
+```{r}
+source("almond_yield.R")
+almond_2 = almond_yield(feb_tmin$tmin_c, jan_precip$precip, "year", dtemp = 2)
+```
+
+
++3 Warming Scenario
+```{r}
+source("almond_yield.R")
+almond_3 = almond_yield(feb_tmin$tmin_c, jan_precip$precip, "year", dtemp = 3)
+```
+
+
+Precipitation Doubling
+```{r}
+source("almond_yield.R")
+almond_double = almond_yield(feb_tmin$tmin_c, jan_precip$precip, "year", dprecip = 1)
+```
+
+Precipitation Halving
+```{r}
+source("almond_yield.R")
+almond_half = almond_yield(feb_tmin$tmin_c, jan_precip$precip, "year", dprecip = -0.5)
+```
+
+
+Low Price
+```{r}
+source("compute_NPV.R")
+source("almond_profit.R")
+profit_low = almond_profit(yield = yields, price = 10, discount = 0.10)
+
+```
+
+High Price
+```{r}
+source("compute_NPV.R")
+source("almond_profit.R")
+profit_high = almond_profit(yield = yields, price = 1000, discount = 0.10)
+```
+
+
+
+Turn it into an array
+```{r}
+profits <- as.array(profit_low,profit_high)
+temperatures<- as.array(almond_1,almond_2,almond_3)
+precipitations <- as.array(almond_half, almond_double)
+```
+
+
