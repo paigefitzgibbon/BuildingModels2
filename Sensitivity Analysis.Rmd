@@ -1,0 +1,66 @@
+---
+title: "Sensitivity Analysis"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(sensitivity)
+library(tidyverse)
+library(pse)
+```
+
+
+sensitivity analysis
+```{r}
+clim <- read.table("clim.txt")
+ 
+ jan_precip <- clim %>% 
+    filter(month=="1") %>% 
+    group_by(year) %>% 
+    summarise(mean_precip_january = mean(precip))
+
+
+  feb_temp <- clim %>% 
+    filter(month == "2") %>% 
+    group_by(year) %>% 
+    summarise(mean_tmin_c = mean(tmin_c))
+  
+source("almond_yield.R")
+factors = c("feb_temp", "jan_precip")
+
+mean(feb_temp$mean_tmin_c)
+sd(feb_temp$mean_tmin_c)
+mean(jan_precip$mean_precip_january)
+sd(jan_precip$mean_precip_january)
+
+factors = c("temp", "precip")
+q = c("qnorm", "qnorm")
+nsets=500
+
+
+q.arg = list(list(mean=9.876432,sd=1.415821), list(mean=4.266685, sd=5.418327))
+
+sens_almond <- LHS(NULL,factors,nsets,q,q.arg)
+sens_pars <- get.data(sens_almond)
+
+
+sens_results <- rbind(sens_pars$temp, sens_pars$precip)
+sens_results <- as.matrix(sens_results)
+
+
+sens_almond = pse::tell(sens_almond, t(sens_results), res.names=c("maxY","minY"))
+
+
+
+pse::plotscatter(sens_almond, cex=5)
+
+pse::plotprcc(sens_almond)
+sens_almond$prcc
+
+```
+
+
+
+We observe that temperature has a greater impact on almond yield than precipitation, although both impact almond harvest. This sensitivity analysis was impacted by the original almond function, which still has some glitches. Since the original almond function was so glitchy it was difficult to plot exactly how each parameter influences almond yield. However, the performed analysis indicated that temperature has a greater influence than precipitation. 

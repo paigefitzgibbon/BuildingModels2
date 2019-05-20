@@ -7,7 +7,7 @@
 #' @author Paige FitzGibbon
 
 
-almond_yield <- function(feb_temp, jan_precip, user_input = "year", dtemp = 0, dprecip = 0) {   
+almond_yield <- function(clim,feb_temp, jan_precip, dtemp = 0, dprecip = 0) {   
   feb_temp = feb_temp + dtemp
   jan_precip = jan_precip * (1 + dprecip)
   output = -0.015 * feb_temp - 0.0046 * feb_temp^2 - 
@@ -15,7 +15,6 @@ almond_yield <- function(feb_temp, jan_precip, user_input = "year", dtemp = 0, d
  data = c(min(output),max(output))
   names(data) = c("Minimum Almond Yield Anomaly", "Maximum Almond Yield Anomaly")
   avg = mean(output)
-  if(user_input == "year") {return(list(output,data))}
-  if(user_input == "average") {return(list(output, data))}
+{return(list(output,data))}
 }
 
